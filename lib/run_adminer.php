@@ -80,6 +80,19 @@ if (\local_adminer\util::check_adminer_secret()) {
         }
     }
 
+    // Provide the key AdminNeo uses to encrypt the password it stores in the session.
+    if (empty($_COOKIE['neo_key'])) {
+        $neokey = bin2hex(random_bytes(16));
+        setcookie('neo_key', $neokey, [
+            'expires' => 0,
+            'path' => \local_adminer\util::get_adminer_url()->get_path(),
+            'secure' => is_https(),
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+        $_COOKIE['neo_key'] = $neokey;
+    }
+
     // Prevent any output of internal access data if something went wrong.
     error_reporting(0);
     ini_set('display_errors', 0);
